@@ -16,7 +16,7 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles 'consumer-rules.pro'
 
-        buildConfigField "String", "BASE_URL", "\"https://api.themoviedb.org/3\""
+        buildConfigField "String", "BASE_URL", "\"https://api.themoviedb.org/3/\""
     }
 
     buildTypes {
@@ -49,4 +49,9 @@ dependencies {
     implementation "com.google.code.gson:gson:$gson_version"
     implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
     implementation "com.jakewharton.retrofit:retrofit2-kotlin-coroutines-adapter:$retrofit_coroutine_adapter_version"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinx_core_version"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinx_core_version"
+    implementation project(path: ':core')
+    implementation project(path: ':domain')
+    implementation project(path: ':middleware')
 }

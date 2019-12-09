@@ -4,7 +4,6 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import com.powerincode.data.BuildConfig
-import com.powerincode.data.remote.MovieService
 import dagger.Module
 import dagger.Provides
 import okhttp3.OkHttpClient
@@ -38,12 +37,5 @@ object DataModule {
             .addConverterFactory(GsonConverterFactory.create(gson))
             .addCallAdapterFactory(CoroutineCallAdapterFactory())
             .build()
-    }
-
-    @JvmStatic
-    @Singleton
-    @Provides
-    fun provideMovieService(retrofit: Retrofit): MovieService {
-        return retrofit.create(MovieService::class.java)
     }
 }

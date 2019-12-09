@@ -1,4 +1,4 @@
-package com.powerincode.moviedatabaseapp.di.scopes
+package com.powerincode.core.di.scopes
 
 import javax.inject.Scope
 

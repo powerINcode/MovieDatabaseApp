@@ -1,6 +1,7 @@
-package com.powerincode.moviedatabaseapp.di.qualifiers
+package com.powerincode.core.di.qualifiers
 
 import javax.inject.Qualifier
+
 
 @Qualifier
 @Retention(AnnotationRetention.RUNTIME)

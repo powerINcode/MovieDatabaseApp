@@ -11,6 +11,8 @@ import dagger.Subcomponent
 )
 interface MainActivityComponent {
 
+    fun inject(target: MainActivity)
+
     @Subcomponent.Factory
     interface Factory {
         fun create(@BindsInstance activity: MainActivity): MainActivityComponent

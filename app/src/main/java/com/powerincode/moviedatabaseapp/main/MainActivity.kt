@@ -1,13 +1,51 @@
 package com.powerincode.moviedatabaseapp.main
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
+import android.widget.Toast
+import com.powerincode.core.domain.Data
+import com.powerincode.core.ui.BaseActivity
+import com.powerincode.domain.repositories.MovieRepository
 import com.powerincode.moviedatabaseapp.R
+import com.powerincode.moviedatabaseapp.extensions.extractData
+import com.powerincode.moviedatabaseapp.extensions.getApplicationComponent
+import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : BaseActivity(R.layout.activity_main) {
 
+    @Inject
+    lateinit var repository: MovieRepository
+
+    @InternalCoroutinesApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+
+        getApplicationComponent().mainActivityComponent()
+            .create(this)
+            .inject(this)
+
+
+        launch {
+            repository.getPopularMovies(false)
+                .onEach {
+                    progressBar.visibility = if(it is Data.LOADING) View.VISIBLE else View.GONE
+                }
+                .filter { it !is Data.LOADING }
+                .catch {
+                    progressBar.visibility = View.GONE
+                    Toast.makeText(this@MainActivity, it.message, Toast.LENGTH_SHORT).show()
+                }
+                .extractData()
+                .collect {
+                    val a = 0
+                }
+        }
     }
 }

@@ -1,7 +1,6 @@
 package com.powerincode.data.repositories.movies.models
 
 import com.powerincode.core.data.local.PrefModel
-import com.powerincode.data.repositories.movies.models.dto.MovieDto
 import com.powerincode.middleware.movies.Movie
 
 class MoviePref(
@@ -17,7 +16,7 @@ class MoviePref(
     override val releaseDate: String,
     override val title: String,
     override val video: Boolean,
-    override val voteAverage: Int,
+    override val voteAverage: Float,
     override val voteCount: Int,
     override val lastUpdatedAt: Long
 ) : Movie, PrefModel

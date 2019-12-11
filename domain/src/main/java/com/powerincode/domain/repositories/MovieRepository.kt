@@ -1,6 +1,6 @@
 package com.powerincode.domain.repositories
 
-import com.powerincode.core.domain.Data
+import com.powerincode.core.domain.repositories.Data
 import com.powerincode.middleware.movies.Movie
 import kotlinx.coroutines.flow.Flow
 

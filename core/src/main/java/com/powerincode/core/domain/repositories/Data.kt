@@ -1,4 +1,4 @@
-package com.powerincode.core.domain
+package com.powerincode.core.domain.repositories
 
 sealed class Data<T: Any?> {
     class LOADING<T>(val data: T?): Data<T>()

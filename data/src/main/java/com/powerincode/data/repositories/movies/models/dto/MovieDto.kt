@@ -16,6 +16,6 @@ data class MovieDto(
     @SerializedName("release_date") override val releaseDate: String,
     @SerializedName("title") override val title: String,
     @SerializedName("video") override val video: Boolean,
-    @SerializedName("vote_average") override val voteAverage: Int,
+    @SerializedName("vote_average") override val voteAverage: Float,
     @SerializedName("vote_count") override val voteCount: Int
 ): Movie

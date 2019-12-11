@@ -1,6 +1,7 @@
 package com.powerincode.core.data.repositories.datamanager
 
-import com.powerincode.core.domain.Data
+import com.powerincode.core.data.local.PrefModelHolder
+import com.powerincode.core.domain.repositories.Data
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
@@ -8,22 +9,29 @@ class DataManager<T : Any>(val key: String, private val delegate: DataDelegate<T
 
     fun flow(force: Boolean): Flow<Data<T>> {
         return flow {
-            val data = delegate.getFromMemory(key)
-            emit(Data.LOADING(data))
+            val memoryData = delegate.getFromMemory(key)
+            emit(Data.LOADING(memoryData?.value))
 
-            if (data == null) {
-                val data2 = delegate.getFromStorage(key)
+            if (memoryData == null) {
+                val storageData = delegate.getFromStorage(key)
 
-                if (data2 == null) {
+                if (storageData == null) {
                     val result = loadFromNetworkAndUpdateCache()
                     emit(Data.COMPLETED(result))
                 } else {
-                    if (force || delegate.isExpired(key, data2)) {
+                    if (force || delegate.isExpired(key, storageData)) {
                         val result = loadFromNetworkAndUpdateCache()
                         emit(Data.COMPLETED(result))
                     } else {
-                        emit(Data.COMPLETED(data2.value))
+                        emit(Data.COMPLETED(storageData.value))
                     }
+                }
+            } else {
+                if (force || delegate.isExpired(key, memoryData)) {
+                    val result = loadFromNetworkAndUpdateCache()
+                    emit(Data.COMPLETED(result))
+                } else {
+                    emit(Data.COMPLETED(memoryData.value))
                 }
             }
         }
@@ -31,8 +39,9 @@ class DataManager<T : Any>(val key: String, private val delegate: DataDelegate<T
 
     private suspend fun loadFromNetworkAndUpdateCache() : T {
         val result = delegate.getFromNetwork()
-        delegate.setToMemory(key, result)
-        delegate.setToStorage(key, result)
+        val valueHolder = PrefModelHolder(result, System.currentTimeMillis())
+        delegate.setToMemory(key, valueHolder)
+        delegate.setToStorage(key, valueHolder)
 
         return result
     }

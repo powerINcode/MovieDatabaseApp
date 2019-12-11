@@ -1,6 +1,6 @@
 package com.powerincode.moviedatabaseapp.extensions
 
-import com.powerincode.core.ui.BaseActivity
+import com.powerincode.core.ui.activity.BaseActivity
 import com.powerincode.moviedatabaseapp.MovieApplication
 import com.powerincode.moviedatabaseapp.di.ApplicationComponent
 

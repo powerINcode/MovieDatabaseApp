@@ -1,10 +1,11 @@
 package com.powerincode.data.repositories.movies
 
+import com.google.gson.reflect.TypeToken
 import com.powerincode.core.data.local.PrefModel
 import com.powerincode.core.data.local.PrefModelHolder
 import com.powerincode.core.data.repositories.datamanager.DataDelegate
 import com.powerincode.core.data.repositories.datamanager.DataManager
-import com.powerincode.core.domain.Data
+import com.powerincode.core.domain.repositories.Data
 import com.powerincode.data.di.qualifiers.StorageType
 import com.powerincode.data.local.Storage
 import com.powerincode.data.remote.MovieService
@@ -14,6 +15,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
+import java.lang.reflect.Type
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -23,18 +25,25 @@ internal class MovieRepositoryImpl @Inject constructor(
     private val movieService: MovieService
     ) : MovieRepository {
     private val moviesDataFlow = DataManager("movie", object : DataDelegate<List<Movie>> {
-        override fun getFromMemory(key: String): List<Movie>? = memoryStorage.get(key)
+        override fun getFromMemory(key: String): PrefModelHolder<List<Movie>>? = memoryStorage.get(key, getType())
 
-        override fun setToMemory(key: String, value: List<Movie>) {
+        override fun setToMemory(key: String, value: PrefModelHolder<List<Movie>>) {
             memoryStorage.put(key, value)
         }
 
         override fun getFromStorage(key: String): PrefModelHolder<List<Movie>>? {
-            return localStorage.get<PrefModelHolder<List<Movie>>>(key)
+            try {
+                val get = localStorage.get<PrefModelHolder<List<Movie>>>(key, getType())
+                return get
+            } catch (e: Exception) {
+                val a = 0
+            }
+
+            return null
         }
 
-        override fun setToStorage(key: String, value: List<Movie>) {
-            localStorage.put(key, PrefModelHolder(value, System.currentTimeMillis()))
+        override fun setToStorage(key: String, value: PrefModelHolder<List<Movie>>) {
+            localStorage.put(key, value)
         }
 
         override suspend fun getFromNetwork(): List<Movie> {
@@ -43,10 +52,11 @@ internal class MovieRepositoryImpl @Inject constructor(
         }
 
         override fun isExpired(key: String, cache: PrefModel): Boolean {
-            val lastUpdatedAt = memoryStorage.get<PrefModel>(key)?.lastUpdatedAt ?: return true
-            return lastUpdatedAt - System.currentTimeMillis() > TimeUnit.MINUTES.toMillis(1)
+            val lastUpdatedAt = cache.lastUpdatedAt
+            return System.currentTimeMillis() - lastUpdatedAt > TimeUnit.MINUTES.toMillis(1)
         }
 
+        override fun getType(): Type = object: TypeToken<PrefModelHolder<List<Movie>>>(){}.type
     })
 
     override fun getPopularMovies(force: Boolean): Flow<Data<List<Movie>>> {

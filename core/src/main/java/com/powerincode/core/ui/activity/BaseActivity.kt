@@ -1,4 +1,4 @@
-package com.powerincode.core.ui
+package com.powerincode.core.ui.activity
 
 import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AppCompatActivity

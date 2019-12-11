@@ -13,6 +13,6 @@ interface Movie {
     val releaseDate: String
     val title: String
     val video: Boolean
-    val voteAverage: Int
+    val voteAverage: Float
     val voteCount: Int
 }

@@ -7,6 +7,7 @@ import com.powerincode.data.di.MoviesModule
 import com.powerincode.moviedatabaseapp.main.di.MainActivityComponent
 import dagger.BindsInstance
 import dagger.Component
+import javax.inject.Named
 import javax.inject.Singleton
 
 @Component(
@@ -23,7 +24,7 @@ interface ApplicationComponent {
 
     @Component.Factory
     interface Factory {
-        fun create(@ApplicationContext @BindsInstance context: Context): ApplicationComponent
+        fun create(@ApplicationContext @BindsInstance context: Context, @Named("MovieDatabaseAPI") @BindsInstance movieDatabaseAPI: String): ApplicationComponent
     }
 }
 

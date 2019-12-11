@@ -27,20 +27,21 @@ class MainActivity : BaseActivity(R.layout.activity_main) {
 
     @Inject
     lateinit var repository: MovieRepository
+
+    override fun inject() {
+        getApplicationComponent().mainActivityComponent().create(this).inject(this)
+    }
+
     @InternalCoroutinesApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        getApplicationComponent().mainActivityComponent()
-            .create(this)
-            .inject(this)
-
         val vm = ViewModelProviders.of(this, viewModelFactory)[MainViewModel::class.java]
-
+val a = 0
         launch {
             repository.getPopularMovies(true)
                 .onEach {
-                    progressBar.visibility = if(it is Data.LOADING) View.VISIBLE else View.GONE
+                    progressBar.visibility = if (it is Data.LOADING) View.VISIBLE else View.GONE
                 }
                 .filter { it !is Data.LOADING }
                 .catch {
@@ -48,7 +49,7 @@ class MainActivity : BaseActivity(R.layout.activity_main) {
                     Toast.makeText(this@MainActivity, it.message, Toast.LENGTH_SHORT).show()
                 }
                 .extractData()
-                .collect{
+                .collect {
 
                 }
         }

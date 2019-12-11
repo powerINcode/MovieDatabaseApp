@@ -9,6 +9,7 @@ import com.powerincode.core.domain.repositories.Data
 import com.powerincode.data.di.qualifiers.StorageType
 import com.powerincode.data.local.Storage
 import com.powerincode.data.remote.MovieService
+import com.powerincode.data.repositories.movies.models.dto.MovieDto
 import com.powerincode.domain.repositories.MovieRepository
 import com.powerincode.middleware.movies.Movie
 import kotlinx.coroutines.Dispatchers
@@ -32,14 +33,7 @@ internal class MovieRepositoryImpl @Inject constructor(
         }
 
         override fun getFromStorage(key: String): PrefModelHolder<List<Movie>>? {
-            try {
-                val get = localStorage.get<PrefModelHolder<List<Movie>>>(key, getType())
-                return get
-            } catch (e: Exception) {
-                val a = 0
-            }
-
-            return null
+            return localStorage.get<PrefModelHolder<List<Movie>>>(key, getType())
         }
 
         override fun setToStorage(key: String, value: PrefModelHolder<List<Movie>>) {
@@ -56,7 +50,7 @@ internal class MovieRepositoryImpl @Inject constructor(
             return System.currentTimeMillis() - lastUpdatedAt > TimeUnit.MINUTES.toMillis(1)
         }
 
-        override fun getType(): Type = object: TypeToken<PrefModelHolder<List<Movie>>>(){}.type
+        override fun getType(): Type = object: TypeToken<PrefModelHolder<List<MovieDto>>>(){}.type
     })
 
     override fun getPopularMovies(force: Boolean): Flow<Data<List<Movie>>> {

@@ -6,11 +6,17 @@ import com.powerincode.core.ui.dialog.toast.ToastView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.*
 import timber.log.Timber
 
 
 abstract class BaseViewModel: ViewModel(), CoroutineScope by MainScope() {
+
+    override fun onCleared() {
+        super.onCleared()
+        cancel()
+    }
 
     fun <T> Flow<T>.withProgress(view: ProgressLoadingView): Flow<T> {
         return this

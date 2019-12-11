@@ -47,13 +47,13 @@ internal class MovieRepositoryImpl @Inject constructor(
 
         override fun isExpired(key: String, cache: PrefModel): Boolean {
             val lastUpdatedAt = cache.lastUpdatedAt
-            return System.currentTimeMillis() - lastUpdatedAt > TimeUnit.MINUTES.toMillis(1)
+            return System.currentTimeMillis() - lastUpdatedAt > TimeUnit.SECONDS.toMillis(10)
         }
 
         override fun getType(): Type = object: TypeToken<PrefModelHolder<List<MovieDto>>>(){}.type
     })
 
-    override fun getPopularMovies(force: Boolean): Flow<Data<List<Movie>>> {
+    override fun getPopularMovies(force: Boolean?): Flow<Data<List<Movie>>> {
         return moviesDataFlow.flow(force)
             .flowOn(Dispatchers.IO)
     }

@@ -7,8 +7,9 @@ import kotlinx.coroutines.flow.flow
 
 class DataManager<T : Any>(val key: String, private val delegate: DataDelegate<T>) {
 
-    fun flow(force: Boolean): Flow<Data<T>> {
+    fun flow(force: Boolean?): Flow<Data<T>> {
         return flow {
+
             val memoryData = delegate.getFromMemory(key)
             emit(Data.LOADING(memoryData?.value))
 
@@ -19,7 +20,7 @@ class DataManager<T : Any>(val key: String, private val delegate: DataDelegate<T
                     val result = loadFromNetworkAndUpdateCache()
                     emit(Data.COMPLETED(result))
                 } else {
-                    if (force || delegate.isExpired(key, storageData)) {
+                    if (isNeedToLoadDataFromNetwork(force, storageData)) {
                         val result = loadFromNetworkAndUpdateCache()
                         emit(Data.COMPLETED(result))
                     } else {
@@ -27,7 +28,7 @@ class DataManager<T : Any>(val key: String, private val delegate: DataDelegate<T
                     }
                 }
             } else {
-                if (force || delegate.isExpired(key, memoryData)) {
+                if (isNeedToLoadDataFromNetwork(force, memoryData)) {
                     val result = loadFromNetworkAndUpdateCache()
                     emit(Data.COMPLETED(result))
                 } else {
@@ -37,7 +38,11 @@ class DataManager<T : Any>(val key: String, private val delegate: DataDelegate<T
         }
     }
 
-    private suspend fun loadFromNetworkAndUpdateCache() : T {
+    private fun isNeedToLoadDataFromNetwork(force: Boolean?, block: PrefModelHolder<T>): Boolean {
+        return force == true || (force == null && delegate.isExpired(key, block))
+    }
+
+    private suspend fun loadFromNetworkAndUpdateCache(): T {
         val result = delegate.getFromNetwork()
         val valueHolder = PrefModelHolder(result, System.currentTimeMillis())
         delegate.setToMemory(key, valueHolder)

@@ -5,5 +5,5 @@ import com.powerincode.middleware.movies.Movie
 import kotlinx.coroutines.flow.Flow
 
 interface MovieRepository {
-    fun getPopularMovies(force: Boolean): Flow<Data<List<Movie>>>
+    fun getPopularMovies(force: Boolean?): Flow<Data<List<Movie>>>
 }

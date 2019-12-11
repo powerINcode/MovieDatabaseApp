@@ -37,9 +37,9 @@ class MainActivity : BaseActivity(R.layout.activity_main) {
         super.onCreate(savedInstanceState)
 
         val vm = ViewModelProviders.of(this, viewModelFactory)[MainViewModel::class.java]
-val a = 0
+
         launch {
-            repository.getPopularMovies(true)
+            repository.getPopularMovies(null)
                 .onEach {
                     progressBar.visibility = if (it is Data.LOADING) View.VISIBLE else View.GONE
                 }
@@ -50,7 +50,43 @@ val a = 0
                 }
                 .extractData()
                 .collect {
+                    repository.getPopularMovies(true)
+                        .onEach {
+                            progressBar.visibility = if (it is Data.LOADING) View.VISIBLE else View.GONE
+                        }
+                        .filter { it !is Data.LOADING }
+                        .catch {
+                            progressBar.visibility = View.GONE
+                            Toast.makeText(this@MainActivity, it.message, Toast.LENGTH_SHORT).show()
+                        }
+                        .extractData()
+                        .collect {
+                            repository.getPopularMovies(false)
+                                .onEach {
+                                    progressBar.visibility = if (it is Data.LOADING) View.VISIBLE else View.GONE
+                                }
+                                .filter { it !is Data.LOADING }
+                                .catch {
+                                    progressBar.visibility = View.GONE
+                                    Toast.makeText(this@MainActivity, it.message, Toast.LENGTH_SHORT).show()
+                                }
+                                .extractData()
+                                .collect {
+                                    repository.getPopularMovies(null)
+                                        .onEach {
+                                            progressBar.visibility = if (it is Data.LOADING) View.VISIBLE else View.GONE
+                                        }
+                                        .filter { it !is Data.LOADING }
+                                        .catch {
+                                            progressBar.visibility = View.GONE
+                                            Toast.makeText(this@MainActivity, it.message, Toast.LENGTH_SHORT).show()
+                                        }
+                                        .extractData()
+                                        .collect {
 
+                                        }
+                                }
+                        }
                 }
         }
     }

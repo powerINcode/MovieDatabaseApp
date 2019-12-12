@@ -35,6 +35,7 @@ dependencies {
     androidTestImplementation "androidx.test.ext:junit:$ext_j_unit_version"
     androidTestImplementation "androidx.test.espresso:espresso-core:$esspresso_version"
 
+    implementation "androidx.recyclerview:recyclerview:$appcompat_version"
     implementation "androidx.lifecycle:lifecycle-extensions:$lifecycle_extension_version"
 
     // Timber

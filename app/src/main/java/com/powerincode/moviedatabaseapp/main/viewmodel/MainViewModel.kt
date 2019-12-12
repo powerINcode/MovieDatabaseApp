@@ -1,13 +1,35 @@
 package com.powerincode.moviedatabaseapp.main.viewmodel
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.powerincode.core.domain.viewmodels.BaseViewModel
 import com.powerincode.core.ui.dialog.progress.ProgressLoadingView
 import com.powerincode.core.ui.dialog.toast.ToastView
+import com.powerincode.domain.repositories.MovieRepository
+import com.powerincode.middleware.movies.Movie
+import com.powerincode.moviedatabaseapp.extensions.extractData
+import com.powerincode.moviedatabaseapp.main.MainScreenContract
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @ExperimentalCoroutinesApi
 class MainViewModel @Inject constructor(
     private val progressDialog: ProgressLoadingView,
-    private val toastView: ToastView
-) : BaseViewModel()
+    private val toastView: ToastView,
+    private val movieRepository: MovieRepository
+) : BaseViewModel(), MainScreenContract.ViewModel {
+
+    private val _movies: MutableLiveData<List<Movie>> = MutableLiveData()
+    override val movies: LiveData<List<Movie>> = _movies
+
+    init {
+        launch {
+            movieRepository.getPopularMovies(null)
+                .withProgress(progressDialog)
+                .errorHandler(toastView)
+                .extractData()
+                .safeCollect { _movies.value = it }
+        }
+    }
+}

@@ -16,6 +16,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import java.lang.reflect.Type
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 internal class MovieRepositoryImpl @Inject constructor(
@@ -25,7 +26,7 @@ internal class MovieRepositoryImpl @Inject constructor(
 ) : MovieRepository {
     private val moviesDataFlow = DataManager(
         "movie",
-        object : TimeDataDelegate<List<Movie>>(memoryStorage, localStorage, 1000L) {
+        object : TimeDataDelegate<List<Movie>>(memoryStorage, localStorage, TimeUnit.MINUTES.toMillis(1)) {
 
             override suspend fun getFromNetwork(): List<Movie> {
                 delay(1000)

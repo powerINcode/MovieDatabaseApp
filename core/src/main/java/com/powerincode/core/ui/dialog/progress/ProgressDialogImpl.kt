@@ -13,7 +13,7 @@ import javax.inject.Inject
 
 class ProgressDialogImpl @Inject constructor(context: Context): ProgressLoadingView {
     private val counter: AtomicInteger = AtomicInteger()
-    private val activity = context as BaseActivity
+    private val activity = context as BaseActivity<*>
     private var dialog: Dialog? = null
 
     override fun show() {

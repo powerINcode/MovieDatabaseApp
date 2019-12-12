@@ -13,6 +13,14 @@ import timber.log.Timber
 
 abstract class BaseViewModel: ViewModel(), CoroutineScope by MainScope() {
 
+    fun onAttach() {
+
+    }
+
+    fun onDetach() {
+
+    }
+
     override fun onCleared() {
         super.onCleared()
         cancel()

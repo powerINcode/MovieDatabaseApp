@@ -4,6 +4,7 @@ import android.content.Context
 import com.powerincode.core.di.qualifiers.ApplicationContext
 import com.powerincode.data.di.DataModule
 import com.powerincode.data.di.MoviesModule
+import com.powerincode.domain.di.DomainModule
 import com.powerincode.moviedatabaseapp.main.di.MainActivityComponent
 import dagger.BindsInstance
 import dagger.Component
@@ -14,6 +15,7 @@ import javax.inject.Singleton
     modules = [
         ApplicationModule::class,
         DataModule::class,
+        DomainModule::class,
         MoviesModule::class
     ]
 )

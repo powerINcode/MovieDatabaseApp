@@ -1,6 +1,7 @@
 package com.powerincode.core.domain.viewmodels
 
 import androidx.lifecycle.ViewModel
+import com.powerincode.core.domain.repositories.Data
 import com.powerincode.core.ui.dialog.progress.ProgressLoadingView
 import com.powerincode.core.ui.dialog.toast.ToastView
 import kotlinx.coroutines.CoroutineScope
@@ -11,7 +12,7 @@ import kotlinx.coroutines.flow.*
 import timber.log.Timber
 
 
-abstract class BaseViewModel: ViewModel(), CoroutineScope by MainScope() {
+abstract class BaseViewModel : ViewModel(), CoroutineScope by MainScope() {
 
     fun onAttach() {
 
@@ -28,18 +29,29 @@ abstract class BaseViewModel: ViewModel(), CoroutineScope by MainScope() {
 
     fun <T> Flow<T>.withProgress(view: ProgressLoadingView): Flow<T> {
         return this
-            .onStart { view.show()  }
+            .onStart { view.show() }
             .onCompletion { view.dismiss() }
     }
 
     fun <T> Flow<T>.errorHandler(view: ToastView): Flow<T> {
-        return this.onCompletion { it?.message?.let { message -> view.show(message) } }
+        return this.onEach {
+            if (it is Data.ERROR<*>) {
+                view.show(it.cause.message)
+            }
+        }
+            .onCompletion { cause -> cause?.message?.let { view.show(it) } }
+    }
+
+    fun <T> Flow<Data<T>>.extractDataSkipError(): Flow<T> = transform { value ->
+        when (value) {
+            is Data.COMPLETED -> return@transform emit(value.data)
+        }
     }
 
     @ExperimentalCoroutinesApi
     @SuppressWarnings
     protected suspend fun <T> Flow<T>.safeCollect(action: suspend (value: T) -> Unit) {
-            this.catch { Timber.e(it) }
+        this.catch { Timber.e(it) }
             .collect(action = action)
     }
 }

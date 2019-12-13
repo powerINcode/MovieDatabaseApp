@@ -13,27 +13,23 @@ class DataManager<T : Any>(val key: String, private val delegate: DataDelegate<T
             val memoryData = delegate.getFromMemory(key)
             emit(Data.LOADING(memoryData?.value))
 
-            if (memoryData == null) {
-                val storageData = delegate.getFromStorage(key)
+            try {
+                val data = if (memoryData == null) {
+                    val storageData = delegate.getFromStorage(key)
 
-                if (storageData == null) {
-                    val result = loadFromNetworkAndUpdateCache()
-                    emit(Data.COMPLETED(result))
-                } else {
-                    if (isNeedToLoadDataFromNetwork(force, storageData)) {
-                        val result = loadFromNetworkAndUpdateCache()
-                        emit(Data.COMPLETED(result))
+                    if (storageData == null) {
+                        loadFromNetworkAndUpdateCache()
+
                     } else {
-                        emit(Data.COMPLETED(storageData.value))
+                        provideDataItem(force, storageData)
                     }
-                }
-            } else {
-                if (isNeedToLoadDataFromNetwork(force, memoryData)) {
-                    val result = loadFromNetworkAndUpdateCache()
-                    emit(Data.COMPLETED(result))
                 } else {
-                    emit(Data.COMPLETED(memoryData.value))
+                    provideDataItem(force, memoryData)
                 }
+
+                emit(data)
+            } catch (e: Exception) {
+                emit(Data.ERROR(e))
             }
         }
     }
@@ -42,12 +38,21 @@ class DataManager<T : Any>(val key: String, private val delegate: DataDelegate<T
         return force == true || (force == null && delegate.isExpired(key, block))
     }
 
-    private suspend fun loadFromNetworkAndUpdateCache(): T {
+    private suspend fun loadFromNetworkAndUpdateCache(): Data<T> {
         val result = delegate.getFromNetwork()
         val valueHolder = PrefModelHolder(result, System.currentTimeMillis())
         delegate.setToMemory(key, valueHolder)
         delegate.setToStorage(key, valueHolder)
 
-        return result
+        return Data.COMPLETED(result)
+    }
+
+    private suspend fun provideDataItem(force: Boolean?, data: PrefModelHolder<T>): Data<T> {
+        return if (isNeedToLoadDataFromNetwork(force, data)) {
+            val result = loadFromNetworkAndUpdateCache()
+            result
+        } else {
+            Data.COMPLETED(data.value)
+        }
     }
 }
